@@ -1,0 +1,11 @@
+# Create image
+docker build -t sumo-rl-image .
+
+# Run docker
+docker run -it -p 8889:8888 -v .:/workspace sumo-rl-image
+
+# Start jupyter
+jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser
+
+# Stop container
+docker stop <container_id>
