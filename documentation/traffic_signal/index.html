@@ -343,6 +343,17 @@ The default reward function is ‘diff-waiting-time’. You can change the rewar
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sumo_rl.environment.traffic_signal.TrafficSignal.get_max_cumulative_waiting_time_of_the_first_vehicles_per_lane">
+<span class="sig-name descname"><span class="pre">get_max_cumulative_waiting_time_of_the_first_vehicles_per_lane</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_max_cumulative_waiting_time_of_the_first_vehicles_per_lane" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum cumulative delay of the first vehicles present in those lanes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>List[float]</strong> – List of max waiting time of the first vehicle on each intersection lane.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sumo_rl.environment.traffic_signal.TrafficSignal.get_out_lanes_density">
 <span class="sig-name descname"><span class="pre">get_out_lanes_density</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_out_lanes_density" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the density of the vehicles in the outgoing lanes of the intersection.</p>
@@ -462,6 +473,7 @@ The default reward function is ‘diff-waiting-time’. You can change the rewar
 <li><a class="reference internal" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_average_speed"><code class="docutils literal notranslate"><span class="pre">TrafficSignal.get_average_speed()</span></code></a></li>
 <li><a class="reference internal" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_lanes_density"><code class="docutils literal notranslate"><span class="pre">TrafficSignal.get_lanes_density()</span></code></a></li>
 <li><a class="reference internal" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_lanes_queue"><code class="docutils literal notranslate"><span class="pre">TrafficSignal.get_lanes_queue()</span></code></a></li>
+<li><a class="reference internal" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_max_cumulative_waiting_time_of_the_first_vehicles_per_lane"><code class="docutils literal notranslate"><span class="pre">TrafficSignal.get_max_cumulative_waiting_time_of_the_first_vehicles_per_lane()</span></code></a></li>
 <li><a class="reference internal" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_out_lanes_density"><code class="docutils literal notranslate"><span class="pre">TrafficSignal.get_out_lanes_density()</span></code></a></li>
 <li><a class="reference internal" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_pressure"><code class="docutils literal notranslate"><span class="pre">TrafficSignal.get_pressure()</span></code></a></li>
 <li><a class="reference internal" href="#sumo_rl.environment.traffic_signal.TrafficSignal.get_total_queued"><code class="docutils literal notranslate"><span class="pre">TrafficSignal.get_total_queued()</span></code></a></li>
