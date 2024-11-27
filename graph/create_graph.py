@@ -2,7 +2,7 @@ from graph.graph_converter import construct_graph_representation
 from graph.node_features import batch_traffic_signal_feature
 from sumo_rl.environment.traffic_signal import TrafficSignal
 
-def construct_graph_and_features(ts_list, device):
+def construct_graph_and_features(ts_list, device, observations=None):
   '''
   Returns:
     * node_features (Tensor): list of feature vectors for each node.
@@ -16,7 +16,7 @@ def construct_graph_and_features(ts_list, device):
     * device (str): Type of device for Tensor.
   '''
   ts_indx, num_nodes, lane_indx, adj_list = construct_graph_representation(ts_list, device)
-  node_features = batch_traffic_signal_feature(ts_list, ts_indx, num_nodes, device)
+  node_features = batch_traffic_signal_feature(ts_list, ts_indx, num_nodes, device, observations)
 
   return node_features, adj_list, ts_indx, lane_indx, num_nodes
 
