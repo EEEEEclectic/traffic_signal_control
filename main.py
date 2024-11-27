@@ -77,5 +77,21 @@ for i in range(len(num_iteration)):
     observations, rewards, terminations, truncations, infos = env.step(actions)
     print(rewards)
     print(observations)
-    
     # Learn policy here
+    
+    
+    ### REPEAT
+    
+    traffic_siginals = [ts for _, ts in env.aec_env.env.env.env.traffic_signals.items()]
+    node_features, adj_list, ts_indx, lane_indx, num_nodes = construct_graph_and_features(traffic_siginals, observations, "cpu")
+    adj_list = torch.unique(adj_list, dim=0).int() # Remove duplicate edges
+    G = build_networkx_G(adj_list.detach().numpy())
+    # nx.draw_networkx(G, arrows=True, with_labels=True)
+
+    laplacian_matrix, eigenvals, eigenvecs = get_laplacian_eigenvecs(G)
+    edge_index = adj_list.T.long()  # pytorch geometric takes in edge_index in shape (2,|E|). ex: [[0,1,0,2],[1,0,2,1]].
+
+    k = 2
+    last_k_features = LastKFeatures([i for i in range(num_nodes)], node_features[0].shape, k)
+    last_k_features.update({ node_index: node_features[node_index] for _, node_index in ts_indx.items()})
+    
