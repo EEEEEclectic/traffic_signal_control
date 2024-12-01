@@ -27,7 +27,7 @@ def construct_graph_representation(ts_list, device):
     adj_list = [[-1 for _ in range(2)] for _ in range(len(lanes_index))]
 
 
-    # fill with additional dummy nodes
+    # Assign head, tail nodes to each edge.
     for ts in ts_list:
         ts_id = ts_idx[ts.id]
         for in_edge in ts.lanes:
@@ -38,15 +38,12 @@ def construct_graph_representation(ts_list, device):
             out_edge_idx = lanes_index[out_edge]
             adj_list[out_edge_idx][0] = ts_id
 
-    incoming_indx = len(ts_idx)
-    outgoing_indx = incoming_indx+1
-    # for unassigned positions, add dummy nodes
+    clean_adj_list = []
+    # for unassigned positions, remove edge from graph.
     for lane in adj_list:
         if lane[0] == -1 or lane[1] == -1:
-            pos = 0
-            if lane[1] == -1:
-                lane[1] = outgoing_indx
-            else: lane[0] = incoming_indx
-    num_nodes = outgoing_indx+1
+            continue
+        clean_adj_list.append(lane)
+    num_nodes = len(clean_adj_list)
 
-    return ts_idx, num_nodes, lanes_index, torch.LongTensor(adj_list, device=device)
+    return ts_idx, num_nodes, lanes_index, torch.LongTensor(clean_adj_list, device=device)
