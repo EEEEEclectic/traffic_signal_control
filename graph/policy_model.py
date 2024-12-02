@@ -58,7 +58,7 @@ class PolicyNetwork(torch.nn.Module):
         self.layers = ModuleList()
         self.layers.append(TransformerBlock(in_channels=self.hidden_features+self.eigenvec_len,
                            out_channels=self.hidden_features, heads=4, dropout=self.dropout))
-        prev = self.input_features
+        prev = self.hidden_features
         for _ in range(self.num_layers-2):
             self.layers.append(TransformerBlock(in_channels=self.hidden_features+prev +
                                self.eigenvec_len, out_channels=self.hidden_features, heads=4, dropout=self.dropout))
