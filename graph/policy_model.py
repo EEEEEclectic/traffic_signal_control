@@ -48,9 +48,15 @@ class PolicyNetwork(torch.nn.Module):
         self.hidden_features = args["hidden_features"]
         self.output_features = args["output_features"]
         self.dropout = args.get("dropout", 0.0)
+
+        # Add preprocessing layers
+        self.preprocess = Sequential(
+            Linear(in_features=self.input_features, out_features=self.hidden_features),
+            LeakyReLU(),
+            Linear(in_features=self.hidden_features, out_features=self.hidden_features))
         # Add Transformer layers
         self.layers = ModuleList()
-        self.layers.append(TransformerBlock(in_channels=self.input_features+self.eigenvec_len,
+        self.layers.append(TransformerBlock(in_channels=self.hidden_features+self.eigenvec_len,
                            out_channels=self.hidden_features, heads=4, dropout=self.dropout))
         prev = self.input_features
         for _ in range(self.num_layers-2):
@@ -81,6 +87,8 @@ class PolicyNetwork(torch.nn.Module):
         * subgraph_indices: list of node indices used in subgraph to add positional encoding
         '''
         x = node_features.float()
+        x = self.preprocess(x)
+        
         pos = np.take(self.eigenvecs, subgraph_indices.cpu().numpy(), axis=0)
         pos = torch.tensor(pos, dtype=torch.float32)
 
