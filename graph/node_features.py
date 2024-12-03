@@ -41,13 +41,14 @@ def traffic_signal_feature(ts, num_green_phases, device, observations=None):
     max_queue = [np.max(queue)]
 
     if observations:
-        obs_features = observations[ts.id]
         result = torch.Tensor(phase_id + min_green
                               + avg_density + min_density + max_density
                               + avg_queue + min_queue + max_queue, device=device)
         return torch.concat(
-            [result, obs_features[0][ts.id], torch.Tensor(
-                list(observations[1][ts.id].values()))]
+            [
+                result,
+                torch.Tensor(observations[ts.id])
+            ]
         )
 
     return torch.Tensor(phase_id + min_green
