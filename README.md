@@ -7,9 +7,10 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/LucasAlegre/sumo-rl/blob/main/LICENSE)
 
-# SUMO-RL
-
+# Traffic Signal Control Using Decentralised MARL via Graph
 <!-- start intro -->
+
+TODO: Add more to README.
 
 SUMO-RL provides a simple interface to instantiate Reinforcement Learning (RL) environments with [SUMO](https://github.com/eclipse/sumo) for Traffic Signal Control.
 
@@ -212,7 +213,7 @@ python outputs/plot.py -f outputs/4x4grid/ppo_conn0_ep2
 
 <!-- start citation -->
 
-If you use this repository in your research, please cite:
+Sources used for project:
 ```bibtex
 @misc{sumorl,
     author = {Lucas N. Alegre},
@@ -222,25 +223,15 @@ If you use this repository in your research, please cite:
     journal = {GitHub repository},
     howpublished = {\url{https://github.com/LucasAlegre/sumo-rl}},
 }
+
+@inproceedings{li2018dcrnn_traffic,
+  title={Diffusion Convolutional Recurrent Neural Network: Data-Driven Traffic Forecasting},
+  author={Li, Yaguang and Yu, Rose and Shahabi, Cyrus and Liu, Yan},
+  booktitle={International Conference on Learning Representations (ICLR '18)},
+  year={2018}
+}
 ```
 
 <!-- end citation -->
 
-<!-- start list of publications -->
 
-List of publications that use SUMO-RL (please open a pull request to add missing entries):
-- [Quantifying the impact of non-stationarity in reinforcement learning-based traffic signal control (Alegre et al., 2021)](https://peerj.com/articles/cs-575/)
-- [Information-Theoretic State Space Model for Multi-View Reinforcement Learning (Hwang et al., 2023)](https://openreview.net/forum?id=jwy77xkyPt)
-- [A citywide TD-learning based intelligent traffic signal control for autonomous vehicles: Performance evaluation using SUMO (Reza et al., 2023)](https://onlinelibrary.wiley.com/doi/full/10.1111/exsy.13301)
-- [Handling uncertainty in self-adaptive systems: an ontology-based reinforcement learning model (Ghanadbashi et al., 2023)](https://link.springer.com/article/10.1007/s40860-022-00198-x)
-- [Multiagent Reinforcement Learning for Traffic Signal Control: a k-Nearest Neighbors Based Approach (Almeida et al., 2022)](https://ceur-ws.org/Vol-3173/3.pdf)
-- [From Local to Global: A Curriculum Learning Approach for Reinforcement Learning-based Traffic Signal Control (Zheng et al., 2022)](https://ieeexplore.ieee.org/abstract/document/9832372)
-- [Poster: Reliable On-Ramp Merging via Multimodal Reinforcement Learning (Bagwe et al., 2022)](https://ieeexplore.ieee.org/abstract/document/9996639)
-- [Using ontology to guide reinforcement learning agents in unseen situations (Ghanadbashi & Golpayegani, 2022)](https://link.springer.com/article/10.1007/s10489-021-02449-5)
-- [Information upwards, recommendation downwards: reinforcement learning with hierarchy for traffic signal control (Antes et al., 2022)](https://www.sciencedirect.com/science/article/pii/S1877050922004185)
-- [A Comparative Study of Algorithms for Intelligent Traffic Signal Control (Chaudhuri et al., 2022)](https://link.springer.com/chapter/10.1007/978-981-16-7996-4_19)
-- [An Ontology-Based Intelligent Traffic Signal Control Model (Ghanadbashi & Golpayegani, 2021)](https://ieeexplore.ieee.org/abstract/document/9564962)
-- [Reinforcement Learning Benchmarks for Traffic Signal Control (Ault & Sharon, 2021)](https://openreview.net/forum?id=LqRSh6V0vR)
-- [EcoLight: Reward Shaping in Deep Reinforcement Learning for Ergonomic Traffic Signal Control (Agand et al., 2021)](https://s3.us-east-1.amazonaws.com/climate-change-ai/papers/neurips2021/43/paper.pdf)
-
-<!-- end list of publications -->

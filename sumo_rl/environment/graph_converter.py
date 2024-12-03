@@ -1,10 +1,18 @@
 import torch
 from .traffic_signal import TrafficSignal
 
-# create graph representation, with TS nodes, and lanes as nodes
-# return: ts_nodes, lanes, adj_list
-# ts: list of TrafficSignal 
 def construct_graph_representation(ts_list):
+    '''
+    Build graph representation of TrafficSignal traffic system.
+    Returns:
+        ts_idx: mapping of TrafficSignal id to associated node index.
+        num_nodes: total number of nodes in graph.
+        lanes_index: mapping of lane id to associated edge index in adj_list.
+        adj_list (torch.Tensor): Adjancency list of size [|E|, 2].
+
+    Args:
+        ts_list (list[TrafficSignal]): list of TrafficSignal to build graph representation for.
+    '''
     # collect traffic signal ids
     sort_ts_func = lambda ts: ts.id
     ts_idx = {ts.id: i for i, ts in enumerate(sorted(ts_list, key=sort_ts_func))}
@@ -40,6 +48,7 @@ def construct_graph_representation(ts_list):
                 pos = 1
             lane[pos] = next_indx
             next_indx += 1
+    num_nodes = next_indx
 
-    return ts_idx, lanes_index, torch.Tensor(adj_list)
+    return ts_idx, num_nodes, lanes_index, torch.Tensor(adj_list)
     
