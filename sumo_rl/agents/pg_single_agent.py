@@ -1,12 +1,14 @@
+# pg_single_agent.py
 import torch
 import torch.optim as optim
 from torch.distributions.categorical import Categorical
 from ..models.util import process_observation_buffer_with_graph
 
+
 class PGSingleAgent:
     def __init__(self, actor, k, ts_idx, device, num_nodes, max_lanes, lr=1e-3):
-        self.hid_dim = actor.encoder._hid_dim
-        self.actor = actor  # encoder + head
+        self.hid_dim = actor.encoder._hid_dim if hasattr(actor, 'encoder') else 128
+        self.actor = actor
         self.ts_idx = ts_idx
         self.device = device
         self.num_nodes = num_nodes
@@ -21,41 +23,26 @@ class PGSingleAgent:
         processed_obs = process_observation_buffer_with_graph(
             self.last_k_observations, self.ts_idx, self.max_lanes, self.num_nodes,
         )
-        return torch.tensor(processed_obs, dtype=torch.float32).to(self.device) # shape of (seq_len, num_nodes, input_dim)
+        return torch.tensor(processed_obs, dtype=torch.float32).to(self.device)
 
     def select_actions(self, logits):
-        """
-        Select actions by sampling from the policy distribution.
-
-        Args:
-            logits (torch.Tensor): Action logits of shape (num_ts, max_green_phases).
-
-        Returns:
-            actions (dict): {ts_id: greenPhase}.
-        """
         action_distributions = torch.softmax(logits, dim=-1)
-
         actions = {}
         log_prob_sum = 0
         for ts_id, node_idx in self.ts_idx.items():
             dist = Categorical(action_distributions[node_idx])
             action = dist.sample()
             actions[ts_id] = action.item()
-            log_prob_sum += dist.log_prob(action)  # Sum log probabilities across all traffic signals
-
+            log_prob_sum += dist.log_prob(action)
         self.log_probs.append(log_prob_sum)
-
         return actions
 
     def compute_global_reward(self, rewards):
-        """
-        Compute global reward as the sum of rewards from all traffic lights.
-        """
         return sum(rewards.values())
 
     def train(self, env, num_episodes):
+        episode_rewards = []
         for episode in range(num_episodes):
-            # Reset environment and observation buffer
             obs = env.reset()
             env.fixed_ts = True
             self.log_probs = []
@@ -64,31 +51,22 @@ class PGSingleAgent:
             step_count = 0
 
             while True:
-                # Warmup phase with default traffic light control
                 if step_count < self.k:
-                    obs, _, _, _ = env.step(action=None)  # Run default traffic light control
+                    obs, _, _, _ = env.step(action=None)
                     self.last_k_observations.append(obs)
                     step_count += 1
                     continue
 
-                # RL control starts after warmup
                 if step_count == self.k:
-                    env.fixed_ts = False  # Switch to RL control
+                    env.fixed_ts = False
                     for _, ts in env.traffic_signals.items():
-                        ts.run_rl_agents()  # Activate RL agents
+                        ts.run_rl_agents()
 
-                #output_features = self.encoder(obs, initial_hidden_state)  # (1, num_nodes, hid_dim)
-                #input_features = obs[-1]  # (1, num_nodes, input_dim)
-                #logits = self.predictor(output_features, input_features).squeeze(0)  # (num_ts, max_green_phases)
-                #print(f"logits: {logits}")
-
-                obs = self.process_observations()
-                obs = obs.unsqueeze(1)  # Shape: (seq_len, 1, num_nodes, input_dim)
+                obs_tensor = self.process_observations().unsqueeze(1)
                 initial_hidden_state = torch.zeros((1, self.num_nodes * self.hid_dim), device=self.device)
-                logits = self.actor(obs, initial_hidden_state).squeeze(0)
-
+                logits = self.actor(obs_tensor, initial_hidden_state).squeeze(0)
                 actions = self.select_actions(logits)
-                obs, rewards, dones, infos = env.step(actions)
+                obs, rewards, dones, info = env.step(actions)
                 self.last_k_observations.append(obs)
                 if len(self.last_k_observations) > self.k:
                     self.last_k_observations.pop(0)
@@ -98,20 +76,19 @@ class PGSingleAgent:
 
                 if dones["__all__"]:
                     break
-
                 step_count += 1
 
-            # Compute policy loss and update
             discounted_rewards = self._compute_discounted_rewards()
             policy_loss = self._compute_policy_loss(discounted_rewards)
-
             self.optimizer.zero_grad()
             policy_loss.backward()
             self.optimizer.step()
 
-            print(f"Episode {episode}, Total Reward: {sum(self.rewards)}, Loss: {policy_loss.item()}")
+            total_ep_reward = sum(self.rewards)
+            episode_rewards.append(total_ep_reward)
+            print(f"Episode {episode}, Total Reward: {total_ep_reward}, Loss: {policy_loss.item()}")
 
-        env.close()
+        return episode_rewards
 
     def _compute_discounted_rewards(self, gamma=0.99):
         discounted_rewards = []
@@ -128,48 +105,6 @@ class PGSingleAgent:
             policy_loss -= log_prob * reward
         return policy_loss
 
-    def save_models(self, model_path):
-        """
-        Save trained model weights.
-        """
-        torch.save(self.model.state_dict(), model_path)
-
-    def test(self, env, num_episodes):
-        """
-        Test the RL agent without updating weights.
-
-        Args:
-            env: SumoEnvironment.
-            num_episodes (int): Number of episodes to run.
-        """
-        total_rewards = []
-        for episode in range(num_episodes):
-            # Reset environment and observation buffer
-            observations = env.reset()
-            self.rewards = []  # Reset rewards for this episode
-
-            while True:
-                obs = self.process_observations(observations)  # (seq_len, num_nodes, input_dim)
-                obs = obs.unsqueeze(1)  # (seq_len, 1, num_nodes, input_dim)
-                initial_hidden_state = torch.zeros((1, self.num_nodes * self.enc_hid_dim), device=self.device)
-                output_features = self.encoder(obs, initial_hidden_state)  # (1, num_nodes, hid_dim)
-
-                input_features = obs[-1].unsqueeze(0)  # (1, num_nodes, input_dim)
-                logits = self.predictor(output_features, input_features).squeeze(0)  # (num_ts, max_green_phases)
-
-                actions = self.select_actions(logits)  # Get actions for all traffic signals
-                observations, rewards, terminations, truncations, infos = env.step(actions)
-
-                global_reward = self.compute_global_reward(rewards)  # Compute the global reward
-                self.rewards.append(global_reward)
-
-                if terminations["__all__"]:
-                    break
-
-            total_episode_reward = sum(self.rewards)
-            total_rewards.append(total_episode_reward)
-            print(f"Episode {episode}, Total Reward: {total_episode_reward}")
-
-        average_reward = sum(total_rewards) / num_episodes
-        print(f"Average Reward over {num_episodes} episodes: {average_reward}")
-
+    def save_models(self, path):
+        torch.save(self.actor.state_dict(), path)
+        print(f"Model saved at {path}")
