@@ -25,7 +25,6 @@ class PGMultiAgent:
         self.last_k_observations = {ts: [] for ts in ts_indx.keys()}
         self.no_op = {ts: 0 for ts in ts_indx.keys()}
 
-
     def update(self, new_obs):
         for ts in self.last_k_observations.keys():
             self.last_k_observations[ts].append(new_obs[ts])
@@ -95,17 +94,6 @@ class PGMultiAgent:
         return subgraph_features, subgraph_nodes, subgraph_edge_index
 
     def train(self, env, num_episodes):
-        # keep track of the last k observations
-        # for num_episodes:
-        # env.reset()
-        # enter while loop until truncation:
-        # 1. if warmup phase, get the new observation shape {ts_id: observation_space} and update the last_k_obs, then continue
-        # 2. at step k, set fix_ts = False and start RL control
-        # 3. each agent build their local graph based on current last_k_obs
-        # 3. output actions (calculate its logprob)
-        # 4. env.step(action) = observations, reward, termination, truncation, info
-        # 5. update the last_k_observations, record reward
-        # outside the while loop, look at the rewards and log_prob, update policy using PG
         for episode in range(num_episodes):
             print(f"Episode {episode + 1}")
             obs, _ = env.reset()
@@ -151,7 +139,7 @@ class PGMultiAgent:
 
                 # Step the environment
                 observations, rewards, terminations, truncations, infos = env.step(actions)
-                self.update(obs)
+                self.update(observations)  # Use observations instead of obs
 
                 # Store rewards
                 for agent_name in env.agents:
@@ -188,3 +176,12 @@ class PGMultiAgent:
                 policy_loss.backward()
                 optimizer.step()
                 print(f"Episode {episode + 1}, Agent {agent_name}, Total Reward: {sum(rewards)}, Loss: {policy_loss.item()}")
+
+    def save_models(self, path):
+        """
+        Save the model of the first agent (or any agent) to the specified path.
+        You can modify this method to save all agents if desired.
+        """
+        first_agent_id = list(self.ts_indx.keys())[0]
+        torch.save(self.models[first_agent_id].state_dict(), path)
+        print(f"Model saved at {path}")
