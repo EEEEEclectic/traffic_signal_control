@@ -44,6 +44,7 @@ pip install -e .
 conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia -y
 
 # Install PyTorch Geometric
+#TODO: Start from here
 conda install pyg -c pyg -y
 
 # Install tensorboard for logging
