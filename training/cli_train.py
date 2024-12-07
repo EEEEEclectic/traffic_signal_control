@@ -13,8 +13,8 @@ def parse_args():
                         help="Name of the experiment (directory will be created inside out_dir)")
 
     # Environment settings
-    parser.add_argument("--net_file", type=str, default="../sumo_rl/nets/RESCO/grid4x4/grid4x4.net.xml")
-    parser.add_argument("--route_file", type=str, default="../sumo_rl/nets/RESCO/grid4x4/grid4x4_1.rou.xml")
+    parser.add_argument("--net_file", type=str, default="sumo_rl/nets/RESCO/grid4x4/grid4x4.net.xml")
+    parser.add_argument("--route_file", type=str, default="sumo_rl/nets/RESCO/grid4x4/grid4x4_1.rou.xml")
     parser.add_argument("--num_seconds", type=int, default=3000, help="Simulation length in seconds")
     parser.add_argument("--begin_time", type=int, default=100, help="Begin time in SUMO simulation")
 

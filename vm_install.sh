@@ -21,7 +21,7 @@ export LIBSUMO_AS_TRACI=1
 # Git Clone Repository
 #######################################
 git clone -b kelvin/training --single-branch https://github.com/EEEEEclectic/traffic_signal_control.git
-cd traffic_signal_control
+cd traffic_signal_control/
 
 #######################################
 # Conda & Python Environment
