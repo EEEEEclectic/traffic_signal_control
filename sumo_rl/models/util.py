@@ -15,7 +15,8 @@ def build_networkx_G(adj_list):
     return G
 
 def get_laplacian_eigenvecs(G):
-    laplacian = nx.laplacian_matrix(G).toarray() #.toarray(): numpy dense array
+    G_undirected = G.to_undirected()
+    laplacian = nx.laplacian_matrix(G_undirected).toarray()
     eigenvals, eigenvecs = np.linalg.eig(laplacian)
     return laplacian, eigenvals, eigenvecs
 

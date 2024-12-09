@@ -87,7 +87,7 @@ class PolicyNetwork(torch.nn.Module):
         '''
         num_timesteps, num_nodes, feature_size = node_features.shape
 
-       # Reshape for GRU: [num_nodes, num_timesteps, feature_size]
+        # Reshape for GRU: [num_nodes, num_timesteps, feature_size]
         x = node_features.permute(1, 0, 2)  # [num_nodes, num_timesteps, feature_size]
 
         # GRU: output shape: (num_nodes, num_timesteps, hidden_features)
