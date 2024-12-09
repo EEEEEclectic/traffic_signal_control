@@ -289,6 +289,8 @@ def train_centralized_transformer(env, args, writer):
             agent.update_last_k_features()
             agent.rewards.append(agent.compute_global_reward(reward))
             step_count += 1
+            if done:
+                break
 
         discounted_rewards = agent._compute_discounted_rewards()
         if len(discounted_rewards) > 0:
