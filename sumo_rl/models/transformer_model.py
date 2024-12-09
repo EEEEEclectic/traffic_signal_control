@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from torch.nn import Linear, LeakyReLU, Sequential, ModuleList, LogSoftmax, BatchNorm1d
+from torch_geometric import device
 from torch_geometric.nn.conv import TransformerConv
 from torch_geometric.nn.aggr import MLPAggregation, MeanAggregation
 
@@ -35,6 +36,7 @@ class PolicyNetwork(torch.nn.Module):
         self.eigenvec_len = self.eigenvecs.shape[0]
         self.num_layers = args.get("num_transformer_layers", 2)
         self.num_proj_layers = args.get("num_proj_layers", 2)
+        self.device = args.get("device", "cpu")
 
         assert self.num_layers > 1
         assert self.num_proj_layers > 1
@@ -113,6 +115,7 @@ class PolicyNetwork(torch.nn.Module):
         local_agent_idx = (subgraph_nodes == agent_index).nonzero(as_tuple=True)[0].item()
 
         logits = self.proj_head(x[local_agent_idx])
-        logits = logits + (1 - self.mask[agent_index]) * -1e9
+        masks = self.mask[agent_index].to(self.device)
+        logits = logits + (1 - masks) * -1e9
 
         return logits

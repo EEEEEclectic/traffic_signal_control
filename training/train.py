@@ -219,7 +219,8 @@ def train_centralized_transformer(env, args, writer):
         "num_transformer_layers": 2,
         "num_proj_layers": 2,
         "hidden_features": 128,
-        "action_mask": action_mask
+        "action_mask": action_mask,
+        "device": args.device
     }
 
     policy = PolicyNetwork(model_args).to(args.device)
@@ -270,14 +271,15 @@ def train_centralized_transformer(env, args, writer):
                     ts.run_rl_agents()
 
             # Transformer logic:
-            agents_features, subgraph_indices, edge_index_device = agent.get_agent_features_and_subgraph()
             actions = {}
             logits = []
             for agent_name, agent_idx in ts_idx.items():
+                agents_features, subgraph_indices, edge_index_device = agent.get_agent_features_and_subgraph(agent_name)
                 logit = agent.actor(agents_features, edge_index_device, agent_idx, subgraph_indices)
                 logits.append((agent_name, agent_idx, logit))
 
             # single agent scenario: one action
+
             actions = agent.select_actions(logits)
             print("\n\n\nhere\n\n\n\n")
             # action_value = list(actions.values())[0]

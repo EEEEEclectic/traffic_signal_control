@@ -49,11 +49,11 @@ class PGSingleAgent:
                 features_dict[node_id] = current_features[node_id]
             self.last_k_features.update(features_dict)
 
-    def get_agent_features_and_subgraph(self):
+    def get_agent_features_and_subgraph(self, agent_name):
 
         # Now, we use the full tuple returned by k_hop_subgraph:
         subgraph_data = get_neighbors(self.ts_idx, self.edge_index, self.k)
-        subgraph_nodes, subgraph_edge_index, mapping, edge_mask = subgraph_data[self.agent_name]
+        subgraph_nodes, subgraph_edge_index, mapping, edge_mask = subgraph_data[agent_name]
         if self.last_k_features is not None:
             node_list = list(self.ts_idx.values())
             all_nodes = range(self.num_nodes)
