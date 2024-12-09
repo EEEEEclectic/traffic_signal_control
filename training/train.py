@@ -289,7 +289,6 @@ def train_centralized_transformer(env, args, writer):
             step_count += 1
 
         discounted_rewards = agent._compute_discounted_rewards()
-        print(f"Discouinted rewards: {discounted_rewards}")
         if len(discounted_rewards) > 0:
             policy_loss = agent._compute_policy_loss(discounted_rewards)
             agent.optimizer.zero_grad()
@@ -297,18 +296,22 @@ def train_centralized_transformer(env, args, writer):
             agent.optimizer.step()
             total_ep_reward = sum(agent.rewards)
             mean_ep_rewards = np.mean(agent.rewards)
-            mean_log_probs = np.mean(agent.log_probs.cpu())
+            log_probs_tensor = torch.stack(agent.log_probs)
+            mean_log_probs = log_probs_tensor.mean().item()
+            loss = policy_loss.detach().cpu().item()
         else:
             total_ep_reward = 0.0
             mean_ep_rewards = 0.0
+            mean_log_probs = 0.0
+            loss = 0.0
 
         metrics.append(
             {
-                "episode": {ep+1},
+                "episode": ep+1,
                 "total_rewards": total_ep_reward,
                 "mean_rewards": mean_ep_rewards,
-                "mean_log_probs": mean_log_probs.cpu().numpy(),
-                "loss": policy_loss.cpu().numpy()
+                "mean_log_probs": mean_log_probs,
+                "loss": loss
             }
         )
         print(metrics)
