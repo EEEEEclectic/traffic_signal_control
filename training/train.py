@@ -305,13 +305,29 @@ def train_centralized_transformer(env, args, writer):
             mean_log_probs = 0.0
             loss = 0.0
 
+        traffic_signals = {k: ts for k, ts in env.traffic_signals.items()}
+        traffic_signals_metrics = {
+            k: {
+                "accumulated_waiting_time_per_lane": ts.get_accumulated_waiting_time_per_lane(),
+                "max_cumulative_waiting_time_of_first_vehicles_per_lane": ts.get_max_cumulative_waiting_time_of_the_first_vehicles_per_lane(),
+                "average_speed": ts.get_average_speed(),
+                "pressure": ts.get_pressure(),
+                "pressure_with_lane_capacity": ts.get_pressure_with_lane_capacity(),
+                "out_lanes_density": ts.get_out_lanes_density(),
+                "lanes_density": ts.get_lanes_density(),
+                "lanes_queue": ts.get_lanes_queue(),
+                "total_queued": ts.get_total_queued(),
+            }
+            for k, ts in traffic_signals.items()
+        }
         metrics.append(
             {
                 "episode": ep+1,
                 "total_rewards": total_ep_reward,
                 "mean_rewards": mean_ep_rewards,
                 "mean_log_probs": mean_log_probs,
-                "loss": loss
+                "loss": loss,
+                "traffic_signals_metrics": traffic_signals_metrics
             }
         )
         print(metrics)
