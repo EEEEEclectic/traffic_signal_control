@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 OUT_DIR="results_runs"
-EPISODES=20
+EPISODES=100
 LR=0.0005
 
 # DCRNN Centralized
@@ -29,7 +29,38 @@ python training/train.py \
   --episodes $EPISODES \
   --lr $LR \
   --exp_name "transformer_centralized" \
+  --out_dir $OUT_DIR \
+  --num_transformer_layers 4 \
+  --num_proj_layers 4 \
+  --hidden_features 256 \
+  --k 8
+
+python training/train.py \
+  --model_type transformer \
+  --approach centralized \
+  --episodes $EPISODES \
+  --lr $LR \
+  --exp_name "transformer_centralized" \
   --out_dir $OUT_DIR
+
+python training/train.py \
+  --model_type transformer \
+  --approach centralized \
+  --episodes $EPISODES \
+  --lr $LR \
+  --exp_name "transformer_centralized" \
+  --out_dir $OUT_DIR \
+  --num_transformer_layers 4 
+
+python training/train.py \
+  --model_type transformer \
+  --approach centralized \
+  --episodes $EPISODES \
+  --lr $LR \
+  --exp_name "transformer_centralized" \
+  --out_dir $OUT_DIR \
+  --num_transformer_layers 4 \
+  --hidden_features 256
 
 # # Transformer Decentralized
 # python training/train.py \

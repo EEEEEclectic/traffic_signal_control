@@ -133,6 +133,7 @@ class PGSingleAgent:
         return sum(rewards.values())
 
     def train(self, env, num_episodes):
+        traffic_signals = [ts for _, ts in env.traffic_signals.items()]
         episode_rewards = []
         for episode in range(num_episodes):
             obs = env.reset()
@@ -142,7 +143,8 @@ class PGSingleAgent:
             self.last_k_observations = [obs]
             step_count = 0
 
-            while True:
+            max_timesteps = 580
+            while True and step_count < 580:
                 if step_count < self.k:
                     obs, _, _, _ = env.step(action=None)
                     self.last_k_observations.append(obs)

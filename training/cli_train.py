@@ -15,7 +15,7 @@ def parse_args():
     # Environment settings
     parser.add_argument("--net_file", type=str, default="sumo_rl/nets/RESCO/grid4x4/grid4x4.net.xml")
     parser.add_argument("--route_file", type=str, default="sumo_rl/nets/RESCO/grid4x4/grid4x4_1.rou.xml")
-    parser.add_argument("--num_seconds", type=int, default=300, help="Simulation length in seconds")
+    parser.add_argument("--num_seconds", type=int, default=60, help="Simulation length in seconds")
     parser.add_argument("--begin_time", type=int, default=100, help="Begin time in SUMO simulation")
 
     # RL settings
@@ -28,6 +28,14 @@ def parse_args():
                         help="Which model architecture to use")
     parser.add_argument("--approach", type=str, choices=["centralized", "decentralized"], default="centralized",
                         help="Centralized (single-agent) or decentralized (multi-agent) training")
+
+    # Model hyperparameters
+    parser.add_argument("--num_transformer_layers", type=int, default=2, help="Number of transformer layer")
+    parser.add_argument("--num_proj_layers", type=int, default=2, help="Number of linear projection layer")
+    parser.add_argument("--hidden_features", type=int, default=128, help="Number of hidden feature")
+
+    # Graph hyperparameters
+    parser.add_argument("--k", type=int, default=2, help="Number of last k")
 
     # Additional arguments
     parser.add_argument("--device", type=str, default="cuda", help="Device to use: cuda or cpu")

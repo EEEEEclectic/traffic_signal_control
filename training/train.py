@@ -4,6 +4,8 @@ import sys
 import torch
 import numpy as np
 import csv
+import json
+from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -206,9 +208,9 @@ def train_centralized_transformer(env, args, writer):
     obs = env.reset()  # single-agent obs with the correct structure
 
     feature_dim = 2 * MAX_LANES
-    k = 2
+    k = args.k
     last_k_features = LastKFeatures(node_index_list=range(num_nodes), feature_shape=(feature_dim,), k=k)
-
+    rewards_all = []
     model_args = {
         "laplacian_matrix": laplacian_matrix,
         "eigenvals": eigenvals,
@@ -216,9 +218,9 @@ def train_centralized_transformer(env, args, writer):
         "ts_indx": ts_idx,
         "in_features": feature_dim,
         "output_features": MAX_GREEN_PHASES,
-        "num_transformer_layers": 2,
-        "num_proj_layers": 2,
-        "hidden_features": 128,
+        "num_transformer_layers": args.num_transformer_layers,
+        "num_proj_layers": args.num_proj_layers,
+        "hidden_features": args.hidden_features,
         "action_mask": action_mask,
         "device": args.device
     }
@@ -247,6 +249,7 @@ def train_centralized_transformer(env, args, writer):
 
     metrics = []
     for ep in range(args.episodes):
+        print(f"Working on episode {ep+1}")
         obs = env.reset()  # single agent: returns {"tl0": {"density":..., "queue":...}}
         agent.log_probs = []
         agent.rewards = []
@@ -255,9 +258,8 @@ def train_centralized_transformer(env, args, writer):
 
         done = False
         step_count = 0
-
-        it_border = 10
-        while not done and step_count < it_border:
+        max_timesteps = 580
+        for i in tqdm(range(max_timesteps)):
             if step_count < k:
                 # Warm-up phase
                 obs, _, _, _ = env.step(None)
@@ -330,18 +332,34 @@ def train_centralized_transformer(env, args, writer):
                 "traffic_signals_metrics": traffic_signals_metrics
             }
         )
-        print(metrics)
         print(f"Episode {ep}, Reward: {total_ep_reward}")
         writer.add_scalar("Episode_Reward", total_ep_reward, ep)
+        writer.add_scalar("Mean_Rewards", mean_ep_rewards, ep)
+        writer.add_scalar("Mean_Log_Probs", mean_log_probs, ep)
+        writer.add_scalar("Loss", loss, ep)
+        rewards_all.append(total_ep_reward)
 
+        # Include hyperparams in model filename
         if (ep+1) % 10 == 0:
-            filename = f"{args.model_type}_{args.approach}_lr{args.lr}_ep{ep+1}.pth"
+            filename = (
+                f"{args.model_type}_{args.approach}_lt{args.num_transformer_layers}"
+                f"_hd{args.hidden_features}_np{args.num_proj_layers}_lr{args.lr}_ep{ep+1}.pth"
+            )
             save_path = os.path.join(weight_dir, filename)
             agent.save_models(save_path)
 
-    final_filename = f"{args.model_type}_{args.approach}_lr{args.lr}_ep{args.episodes}_final.pth"
+    # Final model save
+    final_filename = (
+        f"{args.model_type}_{args.approach}_lt{args.num_transformer_layers}"
+        f"_hd{args.hidden_features}_np{args.num_proj_layers}_lr{args.lr}_ep{args.episodes}_final.pth"
+    )
     final_save_path = os.path.join(weight_dir, final_filename)
     agent.save_models(final_save_path)
+
+    # Store metrics in JSON
+    metrics_file = os.path.join(args.out_dir, args.exp_name, "metrics.json")
+    with open(metrics_file, 'w') as f:
+        json.dump(metrics, f, indent=2)
 
     return rewards_all
 
@@ -403,11 +421,17 @@ if __name__ == "__main__":
     args = parse_args()
     save_config(args)
     parallel = False if args.approach == "centralized" else True
-    env = create_env(args, parallel=parallel)
 
-    log_dir = os.path.join(args.out_dir, args.exp_name, "logs")
+    # Include hyperparams in the tensorboard log directory
+    log_dir = os.path.join(
+        args.out_dir,
+        f"{args.exp_name}_lt{args.num_transformer_layers}_hd{args.hidden_features}_np{args.num_proj_layers}_lr{args.lr}",
+        "logs"
+    )
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir=log_dir)
+
+    env = create_env(args, parallel=parallel)
 
     if args.model_type == "dcrnn":
         if args.approach == "centralized":
