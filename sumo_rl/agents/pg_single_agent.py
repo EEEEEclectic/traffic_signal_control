@@ -121,7 +121,7 @@ class PGSingleAgent:
         for agent_name, agent_idx, logit in logits:
             action_distributions = torch.softmax(logit, dim=-1)
             log_prob_sum = 0
-            dist = Categorical(action_distributions[agent_idx])
+            dist = Categorical(action_distributions)
             action = dist.sample()
             actions[agent_name] = action.item()
             log_prob_sum += dist.log_prob(action)

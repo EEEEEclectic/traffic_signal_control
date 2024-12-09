@@ -245,7 +245,7 @@ def train_centralized_transformer(env, args, writer):
     weight_dir = os.path.join(args.out_dir, args.exp_name, "model_weight")
     os.makedirs(weight_dir, exist_ok=True)
 
-    rewards_all = []
+    metrics = []
     for ep in range(args.episodes):
         obs = env.reset()  # single agent: returns {"tl0": {"density":..., "queue":...}}
         agent.log_probs = []
@@ -256,7 +256,8 @@ def train_centralized_transformer(env, args, writer):
         done = False
         step_count = 0
 
-        while not done:
+        it_border = 10
+        while not done and step_count < it_border:
             if step_count < k:
                 # Warm-up phase
                 obs, _, _, _ = env.step(None)
@@ -278,16 +279,13 @@ def train_centralized_transformer(env, args, writer):
                 logit = agent.actor(agents_features, edge_index_device, agent_idx, subgraph_indices)
                 logits.append((agent_name, agent_idx, logit))
 
-            # single agent scenario: one action
-
+            # Select actions
             actions = agent.select_actions(logits)
-            print("\n\n\nhere\n\n\n\n")
-            # action_value = list(actions.values())[0]
             obs, reward, done, info = env.step(actions)
+            done = done["A0"]  # Use A0 as proxy if done is true or still false
             agent.last_k_observations.append(obs)
             agent.update_last_k_features()
-            agent.rewards.append(reward)
-
+            agent.rewards.append(agent.compute_global_reward(reward))
             step_count += 1
 
         discounted_rewards = agent._compute_discounted_rewards()
@@ -298,10 +296,22 @@ def train_centralized_transformer(env, args, writer):
             policy_loss.backward()
             agent.optimizer.step()
             total_ep_reward = sum(agent.rewards)
+            mean_ep_rewards = np.mean(agent.rewards)
+            mean_log_probs = np.mean(agent.log_probs.cpu())
         else:
             total_ep_reward = 0.0
+            mean_ep_rewards = 0.0
 
-        rewards_all.append(total_ep_reward)
+        metrics.append(
+            {
+                "episode": {ep+1},
+                "total_rewards": total_ep_reward,
+                "mean_rewards": mean_ep_rewards,
+                "mean_log_probs": mean_log_probs.cpu().numpy(),
+                "loss": policy_loss.cpu().numpy()
+            }
+        )
+        print(metrics)
         print(f"Episode {ep}, Reward: {total_ep_reward}")
         writer.add_scalar("Episode_Reward", total_ep_reward, ep)
 
