@@ -43,24 +43,24 @@ python training/train.py \
   --exp_name "transformer_centralized" \
   --out_dir $OUT_DIR
 
-python training/train.py \
-  --model_type transformer \
-  --approach centralized \
-  --episodes $EPISODES \
-  --lr $LR \
-  --exp_name "transformer_centralized" \
-  --out_dir $OUT_DIR \
-  --num_transformer_layers 4 
+# python training/train.py \
+#   --model_type transformer \
+#   --approach centralized \
+#   --episodes $EPISODES \
+#   --lr $LR \
+#   --exp_name "transformer_centralized" \
+#   --out_dir $OUT_DIR \
+#   --num_transformer_layers 4 
 
-python training/train.py \
-  --model_type transformer \
-  --approach centralized \
-  --episodes $EPISODES \
-  --lr $LR \
-  --exp_name "transformer_centralized" \
-  --out_dir $OUT_DIR \
-  --num_transformer_layers 4 \
-  --hidden_features 256
+# python training/train.py \
+#   --model_type transformer \
+#   --approach centralized \
+#   --episodes $EPISODES \
+#   --lr $LR \
+#   --exp_name "transformer_centralized" \
+#   --out_dir $OUT_DIR \
+#   --num_transformer_layers 4 \
+#   --hidden_features 256
 
 # # Transformer Decentralized
 # python training/train.py \
