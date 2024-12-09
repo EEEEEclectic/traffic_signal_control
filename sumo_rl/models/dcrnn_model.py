@@ -5,24 +5,24 @@ from .base_model import BaseModel
 
 class DCRNNEncoder(BaseModel):
     def __init__(self, input_dim, adj_mat, max_diffusion_step, hid_dim, num_nodes,
-                 num_rnn_layers, filter_type):
+                 num_rnn_layers, filter_type, device):
         super(DCRNNEncoder, self).__init__()
         self._hid_dim = hid_dim
         self._num_rnn_layers = num_rnn_layers
         self._num_nodes = num_nodes
-
+        self.device = device
         encoding_cells = list()
 
         # the first layer has different input_dim
         encoding_cells.append(DCGRUCell(input_dim=input_dim, hid_dim=hid_dim, adj_mat=adj_mat,
                                         max_diffusion_step=max_diffusion_step,
-                                        num_nodes=num_nodes, filter_type=filter_type))
+                                        num_nodes=num_nodes, filter_type=filter_type, device=self.device))
 
         # construct multi-layer rnn
         for _ in range(1, num_rnn_layers):
             encoding_cells.append(DCGRUCell(input_dim=hid_dim, hid_dim=hid_dim, adj_mat=adj_mat,
                                             max_diffusion_step=max_diffusion_step,
-                                            num_nodes=num_nodes, filter_type=filter_type))
+                                            num_nodes=num_nodes, filter_type=filter_type, device=self.device))
         self.encoding_cells = nn.ModuleList(encoding_cells)
 
     def forward(self, inputs, initial_hidden_state):
@@ -58,7 +58,7 @@ class DCRNNEncoder(BaseModel):
 
 
 class TLPhasePredictor(nn.Module):
-    def __init__(self, hid_dim, input_dim, num_nodes, num_virtual_nodes, max_green_phases, mask):
+    def __init__(self, hid_dim, input_dim, num_nodes, num_virtual_nodes, max_green_phases, mask, device="cpu"):
         """
         Predicts actions for traffic nodes based on the hidden state from the encoder and local features.
 
@@ -75,7 +75,8 @@ class TLPhasePredictor(nn.Module):
         self.num_ts = num_nodes - num_virtual_nodes  # Exclude virtual incoming/ongoing nodes
         self.num_virtual_nodes = num_virtual_nodes
         self.max_green_phases = max_green_phases
-        self.mask = mask[:-num_virtual_nodes]
+        self.mask = mask[:-num_virtual_nodes].to(device)
+        self.device = device
 
         self.input_dim = hid_dim + input_dim
 

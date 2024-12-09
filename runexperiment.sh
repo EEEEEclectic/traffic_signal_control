@@ -2,18 +2,18 @@
 
 OUT_DIR="results_runs"
 EPISODES=20
-LR=0.001
+LR=0.0005
 
 # DCRNN Centralized
-python training/train.py \
-  --model_type dcrnn \
-  --approach centralized \
-  --episodes $EPISODES \
-  --lr $LR \
-  --exp_name "dcrnn_centralized" \
-  --out_dir $OUT_DIR
+# python training/train.py \
+#   --model_type dcrnn \
+#   --approach centralized \
+#   --episodes $EPISODES \
+#   --lr $LR \
+#   --exp_name "dcrnn_centralized" \
+#   --out_dir $OUT_DIR
 
-# # DCRNN Decentralized
+# DCRNN Decentralized
 # python training/train.py \
 #   --model_type dcrnn \
 #   --approach decentralized \
@@ -22,14 +22,14 @@ python training/train.py \
 #   --exp_name "dcrnn_decentralized" \
 #   --out_dir $OUT_DIR
 
-# # Transformer Centralized
-# python training/train.py \
-#   --model_type transformer \
-#   --approach centralized \
-#   --episodes $EPISODES \
-#   --lr $LR \
-#   --exp_name "transformer_centralized" \
-#   --out_dir $OUT_DIR
+# Transformer Centralized
+python training/train.py \
+  --model_type transformer \
+  --approach centralized \
+  --episodes $EPISODES \
+  --lr $LR \
+  --exp_name "transformer_centralized" \
+  --out_dir $OUT_DIR
 
 # # Transformer Decentralized
 # python training/train.py \

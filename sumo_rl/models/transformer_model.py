@@ -45,11 +45,11 @@ class PolicyNetwork(torch.nn.Module):
         self.dropout = args.get("dropout", 0.0)
         self.mask = args["action_mask"]
 
-        # Add LSTM for processing temporal features
-        self.lstm = torch.nn.LSTM(input_size=self.input_features,
-                                  hidden_size=self.hidden_features,
-                                  num_layers=1,
-                                  batch_first=True)
+        # Use a GRU to process temporal features
+        self.gru = torch.nn.GRU(input_size=self.input_features,
+                                hidden_size=self.hidden_features,
+                                num_layers=1,
+                                batch_first=True)
 
         # Add Transformer layers
         self.layers = torch.nn.ModuleList()
@@ -77,7 +77,7 @@ class PolicyNetwork(torch.nn.Module):
         self.proj_head = Sequential(*proj_head)
         self.softmax = LogSoftmax()
 
-    def forward(self, node_features, edge_index, agent_index, subgraph_indices):
+    def forward(self, node_features, edge_index, agent_index, subgraph_nodes):
         '''
         Args:
         * node_features: shape [num_timesteps, num_nodes, feature_size]
@@ -87,20 +87,19 @@ class PolicyNetwork(torch.nn.Module):
         '''
         num_timesteps, num_nodes, feature_size = node_features.shape
 
-        # Reshape for LSTM: [num_nodes, num_timesteps, feature_size]
+       # Reshape for GRU: [num_nodes, num_timesteps, feature_size]
         x = node_features.permute(1, 0, 2)  # [num_nodes, num_timesteps, feature_size]
 
-        # Pass through LSTM: [num_nodes, num_timesteps, feature_size] -> [num_nodes, hidden_features]
-        lstm_out, _ = self.lstm(x)
-        x = lstm_out[:, -1, :]  # Take the last hidden state: [num_nodes, hidden_features]
+        # GRU: output shape: (num_nodes, num_timesteps, hidden_features)
+        gru_out, h_n = self.gru(x)
+        x = gru_out[:, -1, :]  # (num_nodes, hidden_features)
+
+        # Now take subgraph_nodes subset
+        x = x[subgraph_nodes]  # reduce x to just the subgraph nodes
 
         # Positional encoding for subgraph
-        pos = np.take(self.eigenvecs, subgraph_indices.cpu().numpy(), axis=0)
-        pos = torch.tensor(pos, dtype=torch.float32, device=x.device)
-
-        #if pos.shape[0] != x.shape[0]:
-        #    pos = torch.nn.functional.pad(
-        #        pos, (0, 0, 0, x.shape[0] - pos.shape[0]))
+        pos = np.take(self.eigenvecs, subgraph_nodes.cpu().numpy(), axis=0)
+        pos = torch.tensor(pos, dtype=torch.float32, device=x.device)  # shape: [subgraph_node_count, eigenvec_len]
 
         prev = None
         for layer in self.layers:
@@ -111,7 +110,7 @@ class PolicyNetwork(torch.nn.Module):
             x = torch.cat([x, pos], dim=1)
             x = layer(x, edge_index)
 
-        local_agent_idx = (subgraph_indices == agent_index).nonzero(as_tuple=True)[0].item()
+        local_agent_idx = (subgraph_nodes == agent_index).nonzero(as_tuple=True)[0].item()
 
         logits = self.proj_head(x[local_agent_idx])
         logits = logits + (1 - self.mask[agent_index]) * -1e9

@@ -6,6 +6,7 @@ import torch_geometric
 import networkx as nx
 import numpy as np
 import torch
+import torch_geometric
 
 def build_networkx_G(adj_list):
     G = nx.DiGraph()
@@ -314,4 +315,50 @@ def create_action_mask(num_nodes, max_green_phases, valid_action_counts):
 
     return mask
 
+def get_neighbors(ts_index, adj_list, k):
+  '''
+  Use k_hop_subgraph (https://pytorch-geometric.readthedocs.io/en/latest/modules/utils.html#torch_geometric.utils.k_hop_subgraph).
+  Returns dictionary with tuple representing subgraph:
+    * subset (LongTensor): the nodes involved in the subgraph
+    * edge_index (LongTensor): the filtered edge_index connectivity
+    * mapping (LongTensor): the mapping from node indices in node_idx to their new location
+    * edge_mask (BoolTensor): edge mask indicating which edges were preserved
+  
+  Args:
+    * ts_indx (dict[str: int]): mapping of TrafficSignal id to node index.
+    * adj_list (Tensor): list of directed edges in graph.
+    * k (int): value of k, for k-hop neighbors.
+  '''
 
+  return {ts_id: torch_geometric.utils.k_hop_subgraph(node_idx=int(node_index), 
+                                                           num_hops=k, 
+                                                           edge_index=adj_list, 
+                                                           relabel_nodes=True) \
+               for ts_id, node_index in ts_index.items()}
+
+class LastKFeatures:
+  '''
+  Stores last k features for each TrafficSignal.
+  '''
+
+  def __init__(self, node_index_list, feature_shape, k):
+    '''
+    Args:
+      node_index_list (list[int]): List of node index
+      feature_shape (tuple(int)): shape of feature.
+      k (int): k features to track
+    '''
+    self.k = k
+    self.ts_features = {node_index: [torch.zeros(feature_shape) for _ in range(k)] for node_index in node_index_list }
+
+  def update(self, features):
+    '''
+    Update self.ts_features with most recent features.
+
+    Args:
+      features (dict{int: tensor}): dictionary mapping feature for each node index.
+    '''
+
+    for ts_id, feature in features.items():
+      self.ts_features[ts_id].insert(0, feature)
+      self.ts_features[ts_id].pop()
