@@ -113,4 +113,3 @@ settings.json
 *.csv
 /logs
 /wandb
-/results_runs
