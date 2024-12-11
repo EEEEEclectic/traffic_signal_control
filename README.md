@@ -25,7 +25,7 @@ This project aims to explore and evaluate graph-based reinforcement learning met
 ## Repository Structure
 
 Below is an organized overview of important scripts and directories:
-
+```
 .
 ├─ sumo_rl/                      # Base SUMO-RL environment code
 │   ├─ environment/              # Environment setup, traffic signal definitions
@@ -37,7 +37,7 @@ Below is an organized overview of important scripts and directories:
 │   └─ ...
 ├─ outputs/
 └─ README.md                     # This README
-
+```
 
 
 ### Graph Scripts
