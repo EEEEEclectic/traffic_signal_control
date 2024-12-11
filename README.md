@@ -1,3 +1,107 @@
+# Traffic Signal Control via Multi Agent Graph-based Reinforcement Learning
+
+This repository is based on the `sumo-rl` framework and extended with additional functionalities to handle graph-based representations of traffic networks and apply policy learning methods such as DCRNN or transformer-based models.
+
+## Contents
+
+- [Project Description](#project-description)
+- [Repository Structure](#repository-structure)
+  - [Graph Scripts](#graph-scripts)
+  - [Policy Learning Scripts](#policy-learning-scripts)
+  - [Experiment and Training Scripts](#experiment-and-training-scripts)
+- [How to Run Experiments](#how-to-run-experiments)
+  - [Prerequisites](#prerequisites)
+  - [Example: Training Transformer-based Policy](#example-training-transformer-based-policy)
+- [Logging and Visualization](#logging-and-visualization)
+  - [TensorBoard Logging](#tensorboard-logging)
+  - [Saving and Inspecting Metrics](#saving-and-inspecting-metrics)
+- [Original SUMO-RL Documentation](#original-sumo-rl-documentation)
+- [Citing](#citing)
+
+## Project Description
+
+This project aims to explore and evaluate graph-based reinforcement learning methods for traffic signal control. We integrate approaches like DCRNN and transformer-based models within the SUMO-RL environment and focus on capturing spatio-temporal dependencies in the traffic network via graph structures.
+
+## Repository Structure
+
+Below is an organized overview of important scripts and directories:
+
+
+# Traffic Signal Control via Graph-based Reinforcement Learning
+
+This repository is based on the `sumo-rl` framework and extended with additional functionalities to handle graph-based representations of traffic networks and apply policy learning methods such as DCRNN or transformer-based models.
+
+## Contents
+
+- [Project Description](#project-description)
+- [Repository Structure](#repository-structure)
+  - [Graph Scripts](#graph-scripts)
+  - [Policy Learning Scripts](#policy-learning-scripts)
+  - [Experiment and Training Scripts](#experiment-and-training-scripts)
+- [How to Run Experiments](#how-to-run-experiments)
+  - [Prerequisites](#prerequisites)
+  - [Example: Training Transformer-based Policy](#example-training-transformer-based-policy)
+- [Original SUMO-RL Documentation](#original-sumo-rl-documentation)
+- [Citing](#citing)
+
+## Project Description
+
+This project aims to explore and evaluate graph-based reinforcement learning methods for traffic signal control. We integrate approaches like DCRNN and transformer-based models within the SUMO-RL environment and focus on capturing spatio-temporal dependencies in the traffic network via graph structures.
+
+**Key goals:**
+- Integrate graph-based representations to capture spatial and temporal correlation in the road network.
+
+## Repository Structure
+
+Below is an organized overview of important scripts and directories:
+
+.
+├─ sumo_rl/                      # Base SUMO-RL environment code
+│   ├─ environment/              # Environment setup, traffic signal definitions
+│   ├─ models/                   # Graph model class definition with utilities
+│   ├─ agents/                   # Policy learning agents
+├─ experiments/
+│   ├─ centralised_dcrnn.py      # Centralized DCRNN training
+│   ├─ decentralised_control.py  # Decentralized Transformer-based training
+│   └─ ...
+├─ outputs/
+└─ README.md                     # This README
+
+
+
+### Graph Scripts
+
+- **`sumo_rl/models/base_model.py`**: Base class for all models.
+- **`sumo_rl/models/dcrnn_cell.py`**: The model blocks for DCRNN model.
+- **`sumo_rl/models/dcrnn_model.py`**: The DCRNN encoder and decoder model.
+- **`sumo_rl/models/transformer_model.py`**: The graph transformer model.
+- **`sumo_rl/models/util.py`**: Collection of graph operation fucntions including graph construction, retrieving k-hop neighbors, and temporal graph preprocessing. 
+
+### Policy Learning Scripts
+
+- **`sumo_rl/agents/pg_sigle_agent.py`**: Single agent policy learning script.
+- **`sumo_rl/agents/pg_multi_agent.py`**: Multi agent policy learning script.
+
+### Experiment and Training Scripts
+
+- **`experiments/`**: Training scripts to run different models. 
+
+## How to Run Experiments
+
+### Prerequisites
+
+1. **Prerequisite**: Install prerequisite according to the [Original SUMO-RL Documentation](#original-sumo-rl-documentation) instruction.
+2. **Libraries**:
+  - pytorch-geometric
+
+### Example: Training Centralized DCRNN Policy
+
+```bash
+python experiments/centralised_dcrnn.py
+```
+
+## Original SUMO-RL Documentation
+
 <img src="docs/_static/logo.png" align="right" width="30%"/>
 
 [![DOI](https://zenodo.org/badge/161216111.svg)](https://zenodo.org/doi/10.5281/zenodo.10869789)
