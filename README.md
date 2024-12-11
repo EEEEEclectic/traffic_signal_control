@@ -19,32 +19,6 @@ This repository is based on the `sumo-rl` framework and extended with additional
 
 This project aims to explore and evaluate graph-based reinforcement learning methods for traffic signal control. We integrate approaches like DCRNN and transformer-based models within the SUMO-RL environment and focus on capturing spatio-temporal dependencies in the traffic network via graph structures.
 
-## Repository Structure
-
-Below is an organized overview of important scripts and directories:
-
-
-# Traffic Signal Control via Graph-based Reinforcement Learning
-
-This repository is based on the `sumo-rl` framework and extended with additional functionalities to handle graph-based representations of traffic networks and apply policy learning methods such as DCRNN or transformer-based models.
-
-## Contents
-
-- [Project Description](#project-description)
-- [Repository Structure](#repository-structure)
-  - [Graph Scripts](#graph-scripts)
-  - [Policy Learning Scripts](#policy-learning-scripts)
-  - [Experiment and Training Scripts](#experiment-and-training-scripts)
-- [How to Run Experiments](#how-to-run-experiments)
-  - [Prerequisites](#prerequisites)
-  - [Example: Training Centralized DCRNN Policy](#example-training-centralized-dcrnn-policy)
-- [Original SUMO-RL Documentation](#original-sumo-rl-documentation)
-- [Citing](#citing)
-
-## Project Description
-
-This project aims to explore and evaluate graph-based reinforcement learning methods for traffic signal control. We integrate approaches like DCRNN and transformer-based models within the SUMO-RL environment and focus on capturing spatio-temporal dependencies in the traffic network via graph structures.
-
 **Key goals:**
 - Integrate graph-based representations to capture spatial and temporal correlation in the road network.
 
