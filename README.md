@@ -11,7 +11,7 @@ This repository is based on the `sumo-rl` framework and extended with additional
   - [Experiment and Training Scripts](#experiment-and-training-scripts)
 - [How to Run Experiments](#how-to-run-experiments)
   - [Prerequisites](#prerequisites)
-  - [Example: Training Transformer-based Policy](#example-training-transformer-based-policy)
+  - [Example: Training Centralized DCRNN Policy](#example-training-centralized-dcrnn-policy)
 - [Original SUMO-RL Documentation](#original-sumo-rl-documentation)
 - [Citing](#citing)
 
